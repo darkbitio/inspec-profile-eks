@@ -19,7 +19,7 @@ clustername = attribute('clustername')
 
 control 'eks-1' do
   impact 0.9
-  title 'Ensure AWS EKS Clusters are at the latest version'
+  title 'Ensure the AWS EKS Cluster is running the latest version'
 
   desc "EKS clusters should be running the latest stable version to take advantage of the latest features, stability, and performance fixes.  EKS version 1.12 will be deprecated on May 11th, 2020, and version 1.12 will no longer be available for new cluster creation."
   desc "remediation", "The Kubernetes node version should ideally be identical to the control plane version, but it can trail by up to two minor versions.  This commonly happens during the process of upgrades.  If the latest available version is 1.15, and the current cluster is running 1.14 on the control plane and 1.13 nodes, the upgrade process is as follows: First, upgrade the 1.13 nodes to 1.14.  Once the nodes are healthy, upgrade the control plane to 1.15.  After the control plane is running 1.15, upgrade the nodes to match.
@@ -44,7 +44,7 @@ end
 
 control 'eks-2' do
   impact 1.0
-  title 'Ensure AWS EKS Cluster control planes have audit logs enabled'
+  title 'Ensure the AWS EKS Cluster control plane has audit logs enabled'
 
   desc "Amazon EKS control plane logging provides audit and diagnostic logs directly from the Amazon EKS control plane to CloudWatch Logs in your account.  By default, cluster control plane logs aren't sent to CloudWatch Logs. You must enable each log type individually to send logs for your cluster. CloudWatch Logs ingestion, archive storage, and data scanning rates apply to enabled control plane logs.  The following cluster control plane log types are available: 
 
@@ -71,7 +71,7 @@ end
 
 control 'eks-3' do
   impact 0.9
-  title 'Ensure AWS EKS Clusters are not public'
+  title 'Ensure the AWS EKS Cluster is not public'
 
   desc "Amazon EKS creates an endpoint for the managed Kubernetes API server that you use to communicate with your cluster using kubectl, for example. By default, this API server endpoint is public to the internet, and access to the API server is secured using a combination of AWS Identity and Access Management (IAM), native Kubernetes Role Based Access Control (RBAC), and an access control list that allows any IP address (0.0.0.0/0) to connect.  While this makes administration convenient, the scope of potential attackers is not limited should a newly discovered vulnerability or denial-of-service become available.  Also, should valid credentials from a phished administrator/developer be stolen or leaked, they can be directly used without having to originate from a known set of IP ranges."
   desc "remediation", "During cluster creation, specify `endpointPrivateAccess=true` in the `resourcesVpcConfig` block.  Or, specify `publicAccessCidrs` to be a set of CIDR ranges that do not include `0.0.0.0/0`.  For existing clusters, `publicAccessCidrs` can be updated using `aws eks update-cluster-config` under the `--resources-vpc-config` flag."
@@ -93,7 +93,7 @@ end
 
 control 'eks-4' do
   impact 0.3
-  title 'Ensure AWS EKS Clusters has application secrets encryption enabled'
+  title 'Ensure the AWS EKS Cluster has application secrets encryption enabled'
 
   desc "Envelope encryption for secrets is available for new Amazon EKS clusters running Kubernetes version 1.13 and above. You can setup your own Customer Master Key (CMK) in KMS and link this key by providing the CMK ARN when you create an EKS cluster. When secrets are stored using the Kubernetes secrets API, they are encrypted with a Kubernetes-generated data encryption key, which is then further encrypted using the linked AWS KMS key."
   desc "remediation", "Configure a Customer Master Key (CMK) in KMS, and during cluster creation, configure the `--encryption-config` option to specify the ARN of the KMS key."
