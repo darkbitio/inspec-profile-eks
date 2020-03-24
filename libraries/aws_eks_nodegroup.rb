@@ -15,13 +15,14 @@ class AwsEksNodegroup < AwsResourceBase
   attr_reader :name, :status, :arn, :cluster_name, :version, :release_version, :created_at,
               :tags, :labels, :node_role, :ami_type, :instance_types, :disk_size, :subnets,
               :issues, :autoscaling_group_name, :remote_access_security_group, :ssh_key,
-              :autoscaling_min, :autoscaling_max, :autoscaling_desired
+              :autoscaling_min, :autoscaling_max, :autoscaling_desired, :resp,
+              :remote_access_source_security_groups
 
   def initialize(opts = {})
     super(opts)
     validate_parameters(required: [:cluster_name, :nodegroup_name])
     catch_aws_errors do
-      resp = @aws.eks_client.describe_nodegroup(cluster_name: opts[:cluster_name], nodegroup_name: opts[:nodegroup_name]).nodegroup
+      @resp = @aws.eks_client.describe_nodegroup(cluster_name: opts[:cluster_name], nodegroup_name: opts[:nodegroup_name]).nodegroup
       @name                         = resp[:nodegroup_name]
       @arn                          = resp[:nodegroup_arn]
       @node_role                    = resp[:node_role]
@@ -43,6 +44,7 @@ class AwsEksNodegroup < AwsResourceBase
       @autoscaling_group_name       = resp[:resources][:auto_scaling_groups][0][:name] || ""
       @remote_access_security_group = resp[:resources][:remote_access_security_group] || ""
       @ssh_key                      = resp[:remote_access].nil? ? "" : resp[:remote_access][:ec2_ssh_key] || ""
+      @remote_access_source_security_groups = resp[:remote_access].nil? ? [] : resp[:remote_access][:source_security_groups] || [@remote_access_security_group]
     end
   end
 
@@ -50,8 +52,11 @@ class AwsEksNodegroup < AwsResourceBase
     @autoscaling_max > @autoscaling_min
   end
 
-  def has_remote_access_enabled?
-    !@remote_access_security_group.nil? && !@ssh_key.empty?
+  def has_remote_access_source_security_groups?
+    if !@remote_access_source_security_groups.nil?
+      return true
+    end
+    return false
   end
 
   def active?

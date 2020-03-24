@@ -18,7 +18,7 @@ class AwsEksCluster < AwsResourceBase
               :active, :failed, :deleting, :tags, :created_at, 
               :cluster_security_group_id, :endpoint_public_access, :endpoint_private_access,
               :public_access_cidrs, :logging, :identity, :platform_version, :full_name,
-              :encryption_enabled
+              :encryption_enabled, :major_version, :minor_version
 
   def initialize(opts = {})
     opts = { cluster_name: opts } if opts.is_a?(String)
@@ -29,6 +29,8 @@ class AwsEksCluster < AwsResourceBase
       resp = @aws.eks_client.describe_cluster(name: opts[:cluster_name]).cluster
       @arn                   = resp[:arn]
       @version               = resp[:version]
+      @major_version         = resp[:version].split(".").first
+      @minor_version         = resp[:version].split(".").last
       @platform_version      = resp[:platform_version]
       @certificate_authority = resp[:certificate_authority][:data]
       @name                  = resp[:name]
