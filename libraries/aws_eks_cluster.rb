@@ -91,7 +91,7 @@ class AwsEksCluster < AwsResourceBase
   end
 
   def public?
-    return true if @endpoint_private_access
+    return false if @endpoint_private_access
     return true if @endpoint_public_access || @public_access_cidrs.include?('0.0.0.0/0')
     return false
   end
